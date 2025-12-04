@@ -111,15 +111,14 @@
     }
 
     .overlayLogo{
-  display:block;
-  margin:0 auto 12px auto;
-  max-width:420px;
-  max-height:120px;
-
-  /* DROP SHADOW */
-  filter: drop-shadow(0 6px 8px rgba(0,0,0,0.65))
-          drop-shadow(0 0 10px rgba(0,0,0,0.45));
-}
+      display:block;
+      margin:0 auto 12px auto;
+      max-width:420px;
+      max-height:120px;
+      /* DROP SHADOW */
+      filter: drop-shadow(0 6px 8px rgba(0,0,0,0.65))
+              drop-shadow(0 0 10px rgba(0,0,0,0.45));
+    }
 
     /* SUPER BOLD LEVEL LABEL */
     .overlayLevel{
@@ -568,11 +567,12 @@
     return {ev:ev, res:res};
   }
 
+  // --- mark events as kind:"event"
   function normalizeEvent(x){
     var nm = (x.EventName || x.Name || x.Title || "Event");
     var s = parseTimeAny(x.StartDateTime||x.StartTime||x.Start);
     var e = parseTimeAny(x.EndDateTime||x.EndTime||x.End);
-    return (s && e) ? {name:nm, start:s, end:e, raw:x} : null;
+    return (s && e) ? {kind:"event", name:nm, start:s, end:e, raw:x} : null;
   }
 
   function shortName(p){
@@ -582,6 +582,7 @@
     return (init && ln) ? (init+" "+ln) : (init || ln || "");
   }
 
+  // --- mark reservations as kind:"res"
   function normalizeResv(x){
     var s = parseTimeAny(x.StartTime||x.StartDateTime||x.Start);
     var e = parseTimeAny(x.EndTime||x.EndDateTime||x.End);
@@ -594,7 +595,7 @@
     }
     if(!name && x.ReservationTypeName) name = x.ReservationTypeName;
     if(!name) name = "Reserved";
-    return {name:name, start:s, end:e, raw:x};
+    return {kind:"res", name:name, start:s, end:e, raw:x};
   }
 
   var toggle = 0, cacheEv = [], cacheRes = [], cacheDate = "";
@@ -641,11 +642,18 @@
     }
   }
 
+  // ===== choose In-Progress / Upcoming, prefer reservations over events =====
   function computeAndRender(){
     var ev = []; var i;
-    for(i=0;i<cacheEv.length;i++){ var a=normalizeEvent(cacheEv[i]); if(a){ ev.push(a); } }
+    for(i=0;i<cacheEv.length;i++){
+      var a = normalizeEvent(cacheEv[i]);
+      if(a){ ev.push(a); }
+    }
     var rs = [];
-    for(i=0;i<cacheRes.length;i++){ var b=normalizeResv(cacheRes[i]); if(b){ rs.push(b); } }
+    for(i=0;i<cacheRes.length;i++){
+      var b = normalizeResv(cacheRes[i]);
+      if(b){ rs.push(b); }
+    }
 
     var evC = [];
     for(i=0;i<ev.length;i++){
@@ -658,14 +666,32 @@
 
     var all = rsC.concat(evC);
     all.sort(function(a,b){ return a.start - b.start; });
+
     var now = new Date();
     var cur = null, nxt = null;
+
     for(i=0;i<all.length;i++){
       var it = all[i];
-      if(!cur && now >= it.start && now <= it.end){ cur = it; }
-      if(!nxt && now < it.start){ nxt = it; }
+
+      // pick current, but prefer reservations over events if overlapping
+      if(now >= it.start && now <= it.end){
+        if(!cur){
+          cur = it;
+        } else {
+          if(cur.kind === "event" && it.kind === "res"){
+            cur = it;
+          }
+        }
+      }
+
+      // first future item becomes "next"
+      if(!nxt && now < it.start){
+        nxt = it;
+      }
     }
+
     nxtStart = nxt ? nxt.start.getTime() : null;
+
     if(cur || nxt){ lastGood = {cur:cur, nxt:nxt}; }
     if(cur || nxt){ render(cur, nxt); }
     else if(lastGood){ render(lastGood.cur, lastGood.nxt); }
