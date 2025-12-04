@@ -14,7 +14,7 @@
       display:grid; grid-template-columns:1.2fr 2.2fr 1.1fr 2.1fr 1.2fr;
       gap:4px; padding:8px 12px; box-sizing:border-box;
       transition: background 400ms ease;
-      background:linear-gradient(90deg,#14203a,#22335d 70%); /* default blue */
+      background:linear-gradient(90deg,#14203a,#22335d 70%);
     }
     .bar.red{ background:linear-gradient(90deg,#4a0000,#c02020 70%); }
 
@@ -93,10 +93,6 @@
       pointer-events:auto;
     }
     .overlayBox{
-      position:relative;      /* allows top/left nudging */
-      top:0;
-      left:0;
-
       background-color:#0c0c0c;
       border-radius:30px;
       padding:45px 80px 55px 80px;
@@ -132,12 +128,6 @@
       color:#000000;
     }
 
-    .overlayTitle{
-      font-size:70px;
-      font-weight:1500;
-      margin-bottom:12px;
-      letter-spacing:.18em;
-    }
     .overlayBody{
       font-size:30px;
       line-height:1.25;
@@ -146,17 +136,9 @@
     }
 
     @keyframes popIn{
-      0%{
-        transform:scale(.7);
-        opacity:0;
-      }
-      80%{
-        transform:scale(1.05);
-      }
-      100%{
-        transform:scale(1);
-        opacity:1;
-      }
+      0%{ transform:scale(.7); opacity:0; }
+      80%{ transform:scale(1.05); }
+      100%{ transform:scale(1); opacity:1; }
     }
     @keyframes glowPulse{
       0%,100%{
@@ -177,7 +159,7 @@
 <body>
   <!-- COURT BAR -->
   <div class="bar" id="bar">
-    <div id="cn" class="sec"><div class="val pulse-blue" id="cno">3</div></div>
+    <div id="cn" class="sec"><div class="val pulse-blue" id="cno">2</div></div>
     <div id="cur" class="sec"><div class="label">In Progress</div><div class="val" id="curv">Loading...</div></div>
     <div id="cd" class="sec"><div class="label" id="cdlbl">Time Left</div><div class="val" id="cdv">--</div></div>
     <div id="nxt" class="sec"><div class="label">Upcoming</div><div class="val" id="nxtv">Loading next...</div></div>
@@ -196,32 +178,40 @@
 <script>
 (function(){
   // ======= CONFIG =======
-  var COURT_NO = 3;   // <--- court number
+  var COURT_NO      = 3;   // <--- court number
   var ORG_MEMBER_ID = "12674";
-  var AUTH_B64 = "Basic T3JnXzEyNjc0OjEyNjc0XzE4NWFmZGE3LTdiNGYtNGIwYS04YmEwLWE3OWVhYzc4ODExZA==";
-  var TZ = "America/New_York";
+  var AUTH_B64      = "Basic T3JnXzEyNjc0OjEyNjc0XzE4NWFmZGE3LTdiNGYtNGIwYS04YmEwLWE3OWVhYzc4ODExZA==";
+  var TZ            = "America/New_York";
 
-  // per-court popup nudge (px) – tweak here if Court 3 looks off-center
-  var POPUP_NUDGE_X = 0;   // + = move right,  - = move left
-  var POPUP_NUDGE_Y = -40; // + = move down,   - = move up
-
-  // store current level for overlay
   var currentLevelLabel = "";
   var currentLevelBg    = "#0c0c0c";
 
   // ======= UTIL =======
   function pad2(n){ return (n<10?"0":"")+n; }
   function toLocalNY(d){
-    try{ return d.toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit', hour12:true, timeZone: TZ}); }
-    catch(e){ return d.getHours()+":"+pad2(d.getMinutes()); }
+    try{
+      return d.toLocaleTimeString('en-US', {
+        hour:'numeric', minute:'2-digit', hour12:true, timeZone: TZ
+      });
+    } catch(e){
+      return d.getHours()+":"+pad2(d.getMinutes());
+    }
   }
   function todayStrNY(){
-    try{ return new Intl.DateTimeFormat('en-CA',{timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date()); }
-    catch(e){ var n=new Date(); return n.getFullYear()+"-"+pad2(n.getMonth()+1)+"-"+pad2(n.getDate()); }
+    try{
+      return new Intl.DateTimeFormat('en-CA',{
+        timeZone:TZ,year:'numeric',month:'2-digit',day:'2-digit'
+      }).format(new Date());
+    } catch(e){
+      var n=new Date();
+      return n.getFullYear()+"-"+pad2(n.getMonth()+1)+"-"+pad2(n.getDate());
+    }
   }
   function parseTimeAny(t){
     if(!t){return null;}
-    if(Object.prototype.toString.call(t)==='[object Date]'){ return isNaN(t.getTime())?null:t; }
+    if(Object.prototype.toString.call(t)==='[object Date]'){
+      return isNaN(t.getTime())?null:t;
+    }
     if(typeof t==='number'){ return new Date(t>1e12?t:t*1000); }
     if(typeof t==='string'){
       var s=t.trim();
@@ -242,10 +232,11 @@
     return [];
   }
 
-  // ======= SMART COURT FILTER =======
+  // ======= SMART COURT FILTER (no Title dependency) =======
   function containsCourtN(rec, n){
     n = Number(n) || 1;
     if(!rec) return false;
+
     var visited = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
 
     function stringHasCourtN(str, n){
@@ -326,7 +317,13 @@
       var x = new XMLHttpRequest();
       x.open("GET", url, true);
       x.timeout = timeoutMs||8000;
-      if(headers){ for(var k in headers){ if(headers.hasOwnProperty(k)){ x.setRequestHeader(k, headers[k]); } } }
+      if(headers){
+        for(var k in headers){
+          if(headers.hasOwnProperty(k)){
+            x.setRequestHeader(k, headers[k]);
+          }
+        }
+      }
       x.onreadystatechange = function(){
         if(x.readyState === 4){
           if(x.status >= 200 && x.status < 300){
@@ -336,7 +333,7 @@
         }
       };
       x.ontimeout = function(){ cb(new Error("timeout")); };
-      x.onerror = function(){ cb(new Error("network")); };
+      x.onerror   = function(){ cb(new Error("network")); };
       x.send();
     }catch(e){ cb(e); }
   }
@@ -345,6 +342,7 @@
   var cdTimer = null, cdMode = "none", cdTarget = null;
   var nxtStart = null;
   var lastCurName = "";
+  var lastGood = null;
 
   function setPulse(mode){
     var el = document.getElementById('cno');
@@ -451,9 +449,11 @@
     tick();
   }
 
-  function fmtTime(d){ return "<div class='meta'>"+toLocalNY(d.start)+" - "+toLocalNY(d.end)+"</div>"; }
+  function fmtTime(d){
+    return "<div class='meta'>"+toLocalNY(d.start)+" - "+toLocalNY(d.end)+"</div>";
+  }
 
-  // helper to detect level + colors from title
+  // ===== LEVEL COLOR / LABEL FROM TITLE =====
   function getLevelInfoFromTitle(title){
     var t = (title || "");
     var tLow  = t.toLowerCase();
@@ -503,6 +503,24 @@
     return info;
   }
 
+  // ===== CANCELLED EVENT FILTER (NEW) =====
+  function isCancelledEvent(x){
+    if(!x || typeof x !== "object") return false;
+
+    if(x.IsCanceled === true || x.IsCancelled === true || x.Cancelled === true) return true;
+    if(x.IsActive === false || x.Active === false) return true;
+
+    var statusStr = "";
+    if(typeof x.Status === "string")              statusStr += " " + x.Status;
+    if(typeof x.EventStatus === "string")         statusStr += " " + x.EventStatus;
+    if(typeof x.RegistrationStatus === "string")  statusStr += " " + x.RegistrationStatus;
+
+    statusStr = statusStr.toLowerCase();
+    if(statusStr.indexOf("cancel") >= 0) return true;
+
+    return false;
+  }
+
   function render(cur, nxt){
     var curEl = document.getElementById('curv');
     var nxtEl = document.getElementById('nxtv');
@@ -547,8 +565,6 @@
   }
 
   // ======= DATA =======
-  var lastGood = null;
-
   function buildDayUrls(){
     var d   = todayStrNY();
     var rnd = new Date().getTime();
@@ -566,11 +582,29 @@
   }
 
   function normalizeEvent(x){
-    var nm = (x.EventName || x.Name || x.Title || "Event");
-    var s = parseTimeAny(x.StartDateTime||x.StartTime||x.Start);
-    var e = parseTimeAny(x.EndDateTime||x.EndTime||x.End);
-    return (s && e) ? {kind:"event", name:nm, start:s, end:e, raw:x} : null;
+  if(!x) return null;
+
+  // 1) Generic cancel logic (flags / statuses)
+  if(isCancelledEvent(x)) return null;
+
+  // 2) HARD FILTER: ignore the ghost event
+  //    "Junior Free Drop In - High School #1722071"
+  var nmFull = (x.EventName || x.Name || x.Title || "");
+  var nmFullLower = nmFull.toLowerCase();
+  if (
+    nmFull.indexOf("#1722071") >= 0 ||                         // by ID
+    nmFullLower.indexOf("junior free drop in - high school") >= 0 // by name
+  ){
+    return null;
   }
+
+  // 3) Normal normalization
+  var s = parseTimeAny(x.StartDateTime || x.StartTime || x.Start);
+  var e = parseTimeAny(x.EndDateTime   || x.EndTime   || x.End);
+  var nm = nmFull || "Event";
+
+  return (s && e) ? { kind:"event", name:nm, start:s, end:e, raw:x } : null;
+}
 
   function shortName(p){
     var fn = (p.FirstName||"").trim();
@@ -675,6 +709,7 @@
           }
         }
       }
+
       if(!nxt && now < it.start){
         nxt = it;
       }
@@ -688,7 +723,7 @@
     else { render(null, null); }
   }
 
-  // ===== POPUP OVERLAY HANDLING =====
+  // ===== POPUP OVERLAY LOOP =====
   var infoOverlay   = document.getElementById("infoOverlay");
   var overlayBodyEl = document.getElementById("overlayBody");
   var overlayBoxEl  = document.getElementById("overlayBox");
@@ -714,14 +749,7 @@
     if(curEl && overlayBodyEl){
       overlayBodyEl.innerHTML = curEl.innerHTML || curEl.textContent || "";
     }
-
     applyOverlayLevelStyles();
-
-    if (overlayBoxEl) {
-      overlayBoxEl.style.left = POPUP_NUDGE_X + "px";
-      overlayBoxEl.style.top  = POPUP_NUDGE_Y + "px";
-    }
-
     infoOverlay.classList.add("active");
     setTimeout(function(){
       infoOverlay.classList.remove("active");
