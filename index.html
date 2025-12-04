@@ -93,7 +93,11 @@
       pointer-events:auto;
     }
     .overlayBox{
-      background-color:#0c0c0c; /* CHANGED from background: to background-color: */
+      position:relative;      /* allows top/left nudging */
+      top:0;
+      left:0;
+
+      background-color:#0c0c0c;
       border-radius:30px;
       padding:45px 80px 55px 80px;
       max-width:80%;
@@ -115,12 +119,10 @@
       margin:0 auto 12px auto;
       max-width:420px;
       max-height:120px;
-      /* DROP SHADOW */
       filter: drop-shadow(0 6px 8px rgba(0,0,0,0.65))
               drop-shadow(0 0 10px rgba(0,0,0,0.45));
     }
 
-    /* SUPER BOLD LEVEL LABEL */
     .overlayLevel{
       font-size:56px;
       font-weight:900;
@@ -175,7 +177,7 @@
 <body>
   <!-- COURT BAR -->
   <div class="bar" id="bar">
-    <div id="cn" class="sec"><div class="val pulse-blue" id="cno">4</div></div>
+    <div id="cn" class="sec"><div class="val pulse-blue" id="cno">3</div></div>
     <div id="cur" class="sec"><div class="label">In Progress</div><div class="val" id="curv">Loading...</div></div>
     <div id="cd" class="sec"><div class="label" id="cdlbl">Time Left</div><div class="val" id="cdv">--</div></div>
     <div id="nxt" class="sec"><div class="label">Upcoming</div><div class="val" id="nxtv">Loading next...</div></div>
@@ -185,9 +187,7 @@
   <!-- FULL-SCREEN POPUP OVERLAY -->
   <div id="infoOverlay">
     <div class="overlayBox" id="overlayBox">
-      <!-- put your LevelUp PNG in same folder, named levelup-logo.png -->
       <img src="levelup-logo.png" alt="LevelUp Pickleball" class="overlayLogo">
-      <!-- NEW: level text goes here -->
       <div class="overlayLevel" id="overlayLevel" style="display:none;"></div>
       <div class="overlayBody" id="overlayBody">Loading...</div>
     </div>
@@ -196,15 +196,14 @@
 <script>
 (function(){
   // ======= CONFIG =======
-  var COURT_NO = 3;   // <--- change per court
+  var COURT_NO = 3;   // <--- court number
   var ORG_MEMBER_ID = "12674";
   var AUTH_B64 = "Basic T3JnXzEyNjc0OjEyNjc0XzE4NWFmZGE3LTdiNGYtNGIwYS04YmEwLWE3OWVhYzc4ODExZA==";
   var TZ = "America/New_York";
 
-    // per-court popup nudge (pixels)
-  // tweak these per HTML file
-  var POPUP_NUDGE_X = 400;  // left/right (+ = move right, - = move left)
-  var POPUP_NUDGE_Y = 0;  // up/down   (+ = move down, - = move up)
+  // per-court popup nudge (px) – tweak here if Court 3 looks off-center
+  var POPUP_NUDGE_X = 0;   // + = move right,  - = move left
+  var POPUP_NUDGE_Y = -40; // + = move down,   - = move up
 
   // store current level for overlay
   var currentLevelLabel = "";
@@ -243,11 +242,10 @@
     return [];
   }
 
-  // ======= SMART COURT FILTER (no Title dependency) =======
+  // ======= SMART COURT FILTER =======
   function containsCourtN(rec, n){
     n = Number(n) || 1;
     if(!rec) return false;
-
     var visited = (typeof WeakSet !== "undefined") ? new WeakSet() : null;
 
     function stringHasCourtN(str, n){
@@ -432,7 +430,6 @@
           }, 30000);
 
         } else if (cdMode === "next") {
-          // Upcoming just hit 0 -> force fresh data so it becomes In Progress immediately
           cdTarget = null;
           cdMode   = "none";
           out.className = "val";
@@ -462,7 +459,6 @@
     var tLow  = t.toLowerCase();
     var tNorm = tLow.replace(/\s+/g,"").replace(/–/g,"-").replace(/—/g,"-");
 
-    // default: no level
     var info = {
       bubbleColor: null,
       label: "",
@@ -470,23 +466,22 @@
     };
 
     if(tNorm.indexOf("4.0-4.9") >= 0){
-      info.bubbleColor = "#c81e1e";   // red
+      info.bubbleColor = "#c81e1e";
       info.label       = "Advanced";
       info.overlayBg   = "#b91c1c";
     } else if(tNorm.indexOf("3.5-3.9") >= 0){
-      info.bubbleColor = "#8139be";   // purple
+      info.bubbleColor = "#8139be";
       info.label       = "Intermediate +";
       info.overlayBg   = "#8139be";
     } else if(tNorm.indexOf("3.0-3.4") >= 0){
-      info.bubbleColor = "#16a34a";   // green
+      info.bubbleColor = "#16a34a";
       info.label       = "Intermediate";
       info.overlayBg   = "#22c55e";
     } else if(tNorm.indexOf("2.0-2.9") >= 0){
-      info.bubbleColor = "#33b5ff";   // light blue
+      info.bubbleColor = "#33b5ff";
       info.label       = "Beginner";
       info.overlayBg   = "#38bdf8";
     } else {
-      // text-based fallback
       if(tLow.indexOf("advanced") >= 0){
         info.bubbleColor = "#c81e1e";
         info.label       = "Advanced";
@@ -515,14 +510,12 @@
     if(cur){
       lastCurName = cur.name + fmtTime(cur);
 
-      // reset inline styles
       curEl.className = "val";
       curEl.style.backgroundColor = "";
       curEl.style.borderRadius = "";
       curEl.style.padding = "";
       curEl.style.color = "";
 
-      // determine level colors + label
       var levelInfo = getLevelInfoFromTitle(cur.name || "");
       currentLevelLabel = levelInfo.label;
       currentLevelBg    = levelInfo.overlayBg;
@@ -558,7 +551,7 @@
 
   function buildDayUrls(){
     var d   = todayStrNY();
-    var rnd = new Date().getTime();   // cache-buster for TB1
+    var rnd = new Date().getTime();
     var ev  = "https://api.courtreserve.com/api/v1/eventcalendar/eventlist"
             + "?orgMemberId="+encodeURIComponent(ORG_MEMBER_ID)
             + "&startDate="+d+"T00:00:00&endDate="+d+"T23:59:59"
@@ -572,7 +565,6 @@
     return {ev:ev, res:res};
   }
 
-  // --- mark events as kind:"event"
   function normalizeEvent(x){
     var nm = (x.EventName || x.Name || x.Title || "Event");
     var s = parseTimeAny(x.StartDateTime||x.StartTime||x.Start);
@@ -587,7 +579,6 @@
     return (init && ln) ? (init+" "+ln) : (init || ln || "");
   }
 
-  // --- mark reservations as kind:"res"
   function normalizeResv(x){
     var s = parseTimeAny(x.StartTime||x.StartDateTime||x.Start);
     var e = parseTimeAny(x.EndTime||x.EndDateTime||x.End);
@@ -611,7 +602,6 @@
 
     var urls = buildDayUrls();
 
-    // if forceNoToggle (coming from countdown), just fetch both fresh once
     if(forceNoToggle){
       xhrJSON(urls.ev,  {"Authorization":AUTH_B64}, 8000, function(errE, dataE){
         if(!errE){ cacheEv = pickArray(dataE); }
@@ -647,24 +637,22 @@
     }
   }
 
-  // ===== choose In-Progress / Upcoming, prefer reservations over events =====
   function computeAndRender(){
-    var ev = []; var i;
+    var ev = [], rs = [], i;
+
     for(i=0;i<cacheEv.length;i++){
       var a = normalizeEvent(cacheEv[i]);
       if(a){ ev.push(a); }
     }
-    var rs = [];
     for(i=0;i<cacheRes.length;i++){
       var b = normalizeResv(cacheRes[i]);
       if(b){ rs.push(b); }
     }
 
-    var evC = [];
+    var evC = [], rsC = [];
     for(i=0;i<ev.length;i++){
       if(containsCourtN(ev[i].raw, COURT_NO)) evC.push(ev[i]);
     }
-    var rsC = [];
     for(i=0;i<rs.length;i++){
       if(containsCourtN(rs[i].raw, COURT_NO)) rsC.push(rs[i]);
     }
@@ -678,7 +666,6 @@
     for(i=0;i<all.length;i++){
       var it = all[i];
 
-      // pick current, but prefer reservations over events if overlapping
       if(now >= it.start && now <= it.end){
         if(!cur){
           cur = it;
@@ -688,8 +675,6 @@
           }
         }
       }
-
-      // first future item becomes "next"
       if(!nxt && now < it.start){
         nxt = it;
       }
@@ -703,7 +688,7 @@
     else { render(null, null); }
   }
 
-  // ===== POPUP OVERLAY (GLOW, ON-THE-MINUTE, MIRROR "IN PROGRESS") =====
+  // ===== POPUP OVERLAY HANDLING =====
   var infoOverlay   = document.getElementById("infoOverlay");
   var overlayBodyEl = document.getElementById("overlayBody");
   var overlayBoxEl  = document.getElementById("overlayBox");
@@ -715,12 +700,11 @@
     if(currentLevelLabel){
       overlayLevelEl.style.display = "block";
       overlayLevelEl.textContent  = currentLevelLabel;
-      // CHANGED: background -> backgroundColor for TB1
       overlayBoxEl.style.backgroundColor = currentLevelBg || "#0c0c0c";
     } else {
       overlayLevelEl.style.display = "none";
       overlayLevelEl.textContent  = "";
-      overlayBoxEl.style.backgroundColor = "#0c0c0c"; // default black when no level
+      overlayBoxEl.style.backgroundColor = "#0c0c0c";
     }
   }
 
@@ -728,17 +712,20 @@
     if(!infoOverlay) return;
     var curEl = document.getElementById("curv");
     if(curEl && overlayBodyEl){
-      // copy whatever is currently in the In Progress tab (name + time)
       overlayBodyEl.innerHTML = curEl.innerHTML || curEl.textContent || "";
     }
 
-    // apply level + background based on current event
     applyOverlayLevelStyles();
+
+    if (overlayBoxEl) {
+      overlayBoxEl.style.left = POPUP_NUDGE_X + "px";
+      overlayBoxEl.style.top  = POPUP_NUDGE_Y + "px";
+    }
 
     infoOverlay.classList.add("active");
     setTimeout(function(){
       infoOverlay.classList.remove("active");
-    }, 10000); // visible for 10 seconds
+    }, 10000);
   }
 
   function startOverlayMinuteLoop(){
@@ -749,7 +736,7 @@
 
     setTimeout(function(){
       showInfoOverlay();
-      setInterval(showInfoOverlay, 60000); // repeat every minute
+      setInterval(showInfoOverlay, 60000);
     }, msUntilNextMinute);
   }
 
