@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Court 3</title>
+  <title>Court 16</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -323,9 +323,6 @@
       z-index:9999; background:rgba(5,8,24,.85);
       opacity:0; pointer-events:none;
       transition:opacity 700ms ease;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      /* FIX: use flexbox to center — avoids top/left/transform issues on NovaStar */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -410,10 +407,7 @@
       z-index:10000; background: rgba(5,8,24,0.88);
       opacity:0; pointer-events:none;
       transition: opacity 600ms ease;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
       overflow:hidden;
-      /* FIX: use flexbox to center — avoids top/left/transform issues on NovaStar */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -665,7 +659,7 @@
 (function(){
 
   // ── CONFIG ────────────────────────────────────────────────
-  var COURT_NO   = 3;
+  var COURT_NO   = 16;
   var TZ         = "America/New_York";
   var PROXY_BASE = "https://courtreserve-proxy.s-jackson.workers.dev/api/day";
   var API_KEY    = "";
