@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>Court 3</title>
+  <title>Court 11</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,7 +28,7 @@
       font-family: 'Barlow', Arial, sans-serif;
     }
 
-    /* ── BAR ─────────────────────────────────────────────── */
+    /* ── BAR ────────────────────────────────────────── */
     .bar {
       position:fixed; left:0; right:0; bottom:0;
       height:72px;
@@ -51,7 +51,7 @@
         var(--bar-skill-a) 100%);
     }
 
-    /* Expiring mode (last 60s) */
+    /* ── EXPIRING MODE ── full bar takeover for last 60s ── */
     .bar.expiring {
       grid-template-columns: 1.1fr 4.5fr 1.5fr;
       background: linear-gradient(
@@ -151,6 +151,7 @@
     #cur .label { color: rgba(108,255,108,0.9); }
     #nxt .label { color: rgba(255,229,107,0.95); }
 
+    /* Live dot for in-progress */
     .live-dot {
       width:6px; height:6px;
       background: var(--green);
@@ -189,8 +190,15 @@
       white-space:nowrap;
       transition: font-size 300ms ease, color 300ms ease, text-shadow 300ms ease;
     }
-    #cd.minutes-only .val { font-size:42px; }
-    #cd.warn .val { color: #ffd83a; }
+    /* Bigger when showing just minutes (sub-60 min) */
+    #cd.minutes-only .val {
+      font-size:42px;
+    }
+    /* 10 minutes or less — yellow warning */
+    #cd.warn .val {
+      color: #ffd83a;
+    }
+    /* 5 minutes or less — glowing red */
     #cd.danger .val {
       color: #ff5a5a;
       animation: dangerGlow 1.2s ease-in-out infinite;
@@ -226,7 +234,7 @@
       line-height: 1.2;
     }
 
-    /* Court number */
+    /* Court number — focal point */
     #cn {
       padding: 0;
       background: var(--green);
@@ -251,7 +259,7 @@
     .bar.skill #cn { background: #000; }
     .bar.skill #cn .val { color: #fff; }
 
-    /* Light skill colors need black text */
+    /* Light skill colors (Advanced/Pro) need BLACK text for readability */
     .bar.skill.skill-light #cur .val,
     .bar.skill.skill-light #nxt .val,
     .bar.skill.skill-light #cd .val,
@@ -265,6 +273,7 @@
       background: #000 !important;
       box-shadow: 0 0 8px rgba(0,0,0,0.5) !important;
     }
+    /* On light skill backgrounds, warn/danger countdown stays black with subtle pulse */
     .bar.skill.skill-light #cd.warn .val { color: #000 !important; }
     .bar.skill.skill-light #cd.danger .val {
       color: #000 !important;
@@ -287,6 +296,7 @@
       50%      { color: #fff; }
     }
 
+    /* Skill-level pill on Upcoming */
     .skill-pill {
       display:inline-block;
       width:10px; height:10px;
@@ -294,6 +304,24 @@
       margin-right:6px;
       vertical-align:middle;
       box-shadow: 0 0 6px currentColor;
+    }
+
+
+    .book-front-desk-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 34px;
+      font-weight: 400;
+      letter-spacing: 0.08em;
+      color: #fff;
+      text-transform: uppercase;
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .bar.red #cur .label,
+    .bar.red #nxt .label,
+    .bar.red #now .label,
+    .bar.red #cd .label {
+      color: rgba(255,255,255,0.82);
     }
 
     .expired-msg {
@@ -307,20 +335,20 @@
     }
     .expired-msg span { display: block; }
 
-    /* ── OVERLAYS (fixed centering) ─────────────────────── */
+    /* ── EVENT OVERLAY ── */
     #infoOverlay {
-      position:fixed; inset:0;
+      position:fixed; top:0; left:0; right:0; bottom:0;
       z-index:9999; background:rgba(5,8,24,.85);
+      display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
       transition:opacity 700ms ease;
       backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      -webkit-backdrop-filter: blur(4px);
     }
     #infoOverlay.active { opacity:1; pointer-events:auto; }
 
     .overlayBox {
+      transform:scale(.82);
       background: linear-gradient(160deg, #0a1030 0%, #050818 100%);
       border: 1px solid rgba(60,196,64,0.25);
       border-radius:24px;
@@ -369,9 +397,9 @@
     }
 
     @keyframes popIn {
-      0%  { transform: scale(.7); opacity:0; }
-      80% { transform: scale(1.04); }
-      100%{ transform: scale(1); opacity:1; }
+      0%  { transform:scale(.7); opacity:0; }
+      80% { transform:scale(1.04); }
+      100%{ transform:scale(1); opacity:1; }
     }
     @keyframes glowPulse {
       0%, 100% {
@@ -390,16 +418,15 @@
       }
     }
 
-    /* Birthday Overlay */
+    /* ── BIRTHDAY OVERLAY ── */
     #bdayOverlay {
-      position:fixed; inset:0;
+      position:fixed; top:0; left:0; right:0; bottom:0;
       z-index:10000; background: rgba(5,8,24,0.88);
+      display:flex; align-items:center; justify-content:center;
       opacity:0; pointer-events:none;
       transition: opacity 600ms ease;
       backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      -webkit-backdrop-filter: blur(4px);
       overflow:hidden;
     }
     #bdayOverlay.active { opacity:1; pointer-events:auto; }
@@ -412,6 +439,7 @@
       max-width:75%;
       text-align:center;
       color:#fff;
+      z-index:2;
       box-shadow:
         0 0 0 1px rgba(255,255,255,0.05) inset,
         0 12px 40px rgba(0,0,0,0.6),
@@ -479,7 +507,7 @@
       filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)) brightness(1.05);
     }
 
-    /* Balloons */
+    /* Balloons — fewer, more on-brand */
     .balloon-container {
       position:fixed; inset:0;
       pointer-events:none; z-index:9999; overflow:hidden;
@@ -594,12 +622,12 @@
     <button data-test="__danger__">Show 5m Danger (Red Glow)</button>
     <button data-test="__urgent__">Show Time Expiring</button>
     <button class="reset" data-test="__reset__">Resume Live Data</button>
-    <div class="hint">Press T to toggle • ESC to close</div>
+    <div class="hint">Press T to toggle · ESC to close</div>
   </div>
 
   <div class="bar" id="bar">
     <div id="cn"  class="sec">
-      <div class="val" id="cno">11</div>
+      <div class="val" id="cno">1</div>
     </div>
     <div id="cur" class="sec">
       <div class="label"><span class="live-dot"></span>In Progress</div>
@@ -647,8 +675,8 @@
 <script>
 (function(){
 
-  // CONFIG
-  var COURT_NO   = 3;
+  // ── CONFIG ────────────────────────────────────────────────
+  var COURT_NO   = 11;
   var TZ         = "America/New_York";
   var PROXY_BASE = "https://courtreserve-proxy.s-jackson.workers.dev/api/day";
   var API_KEY    = "";
@@ -672,7 +700,7 @@
   var nxtStart = null, lastCurName = "", lastGood = null;
   var cacheEv = [], cacheRes = [];
 
-  // DEBUG
+  // ── DEBUG ────────────────────────────────────────────
   function dbg(msg){
     if(!SHOW_DEBUG) return;
     var el = document.getElementById("debugLog");
@@ -686,7 +714,7 @@
     el.scrollTop = el.scrollHeight;
   }
 
-  // UTILS
+  // ── UTILS ────────────────────────────────────────────
   function pad2(n){ return (n<10?"0":"")+n; }
 
   function toLocalNY(d){
@@ -701,11 +729,11 @@
     if(typeof t==="number") return new Date(t>1e12?t:t*1000);
     if(typeof t==="string"){
       var s=t.trim(); if(!s) return null;
-      var m=s.match(/^\\/Date\\((-?\\d+)(?:[+-]\\d{4})?\\)\\//i);
+      var m=s.match(/^\/Date\((-?\d+)(?:[+-]\d{4})?\)\/$/i);
       if(m) return new Date(parseInt(m[1],10));
       var d=new Date(s);
       if(!isNaN(d.getTime())) return d;
-      var a=s.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})\\s+(\\d{1,2}):(\\d{2})\\s*(AM|PM)?$/i);
+      var a=s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2})\s*(AM|PM)?$/i);
       if(a){
         var hr=+a[4],mn=+a[5],ap=(a[6]||"").toUpperCase();
         if(ap==="PM"&&hr<12) hr+=12;
@@ -713,7 +741,7 @@
         var d2=new Date(+a[3],+a[1]-1,+a[2],hr,mn,0);
         if(!isNaN(d2.getTime())) return d2;
       }
-      var b=s.match(/^(\\d{4})-(\\d{2})-(\\d{2})[T ](\\d{2}):(\\d{2})(?::(\\d{2}))?/);
+      var b=s.match(/^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
       if(b){
         var d3=new Date(+b[1],+b[2]-1,+b[3],+b[4],+b[5],+(b[6]||0));
         if(!isNaN(d3.getTime())) return d3;
@@ -735,7 +763,7 @@
     return [];
   }
 
-  // COURT FILTER
+  // ── COURT FILTER ────────────────────────────────────────────
   function containsCourtN(rec, n){
     n = Number(n)||1;
     if(!rec) return false;
@@ -745,14 +773,14 @@
       if(!s) return false;
       s = String(s).toLowerCase();
       if(s.indexOf("court")===-1) return false;
-      var exact = new RegExp("courts?\\\\s*#?\\\\s*"+n+"(?!\\\\d)","g");
+      var exact = new RegExp("courts?\\s*#?\\s*"+n+"(?!\\d)","g");
       if(exact.test(s)) return true;
-      var rg=/courts?\\s*#?\\s*(\\d+)\\s*[-\u2013\u2014]\\s*#?\\s*(\\d+)/g, m;
+      var rg=/courts?\s*#?\s*(\d+)\s*[-–]\s*#?\s*(\d+)/g, m;
       while((m=rg.exec(s))!==null){
         var a=+m[1],b=+m[2];
         if(n>=Math.min(a,b)&&n<=Math.max(a,b)) return true;
       }
-      var lg=/courts?\\s*#?\\s*(\\d+)(?!\\d)/g, lm;
+      var lg=/courts?\s*#?\s*(\d+)(?!\d)/g, lm;
       while((lm=lg.exec(s))!==null){
         if(parseInt(lm[1],10)===n) return true;
       }
@@ -798,7 +826,7 @@
     return false;
   }
 
-  // CLOCK
+  // ── CLOCK ────────────────────────────────────────────
   function tickClock(){
     document.getElementById("clock").textContent = toLocalNY(new Date());
     var now=new Date();
@@ -806,7 +834,7 @@
     setTimeout(tickClock, delay<250?250:delay);
   }
 
-  // HTTP
+  // ── HTTP ────────────────────────────────────────────
   function xhrJSON(url, headers, ms, cb){
     try{
       var x=new XMLHttpRequest();
@@ -832,7 +860,7 @@
     return h;
   }
 
-  // UI HELPERS
+  // ── UI HELPERS ────────────────────────────────────────────
   function darkenHex(hex,pct){
     var h=String(hex||"").replace("#","");
     if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
@@ -844,19 +872,9 @@
     return "#"+("0"+r.toString(16)).slice(-2)+("0"+g.toString(16)).slice(-2)+("0"+b.toString(16)).slice(-2);
   }
 
-  function isLightColor(hex){
-    var h = String(hex||"").replace("#","");
-    if(h.length===3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
-    if(h.length!==6) return false;
-    var r = parseInt(h.substr(0,2),16);
-    var g = parseInt(h.substr(2,2),16);
-    var b = parseInt(h.substr(4,2),16);
-    var luminance = (0.299*r + 0.587*g + 0.114*b);
-    return luminance > 140;
-  }
-
   function setBarMode(mode){
     var bar=document.getElementById("bar"), cn=document.getElementById("cn"), cd=document.getElementById("cd");
+    // Preserve sub-state classes on the countdown (minutes-only / warn / danger) across mode changes
     var preserve = [];
     if(cd){
       if(cd.classList.contains("minutes-only")) preserve.push("minutes-only");
@@ -888,6 +906,18 @@
     bar.className="bar";
   }
 
+  // Returns true if the color is light enough to need dark text
+  function isLightColor(hex){
+    var h = String(hex||"").replace("#","");
+    if(h.length===3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(h.length!==6) return false;
+    var r = parseInt(h.substr(0,2),16);
+    var g = parseInt(h.substr(2,2),16);
+    var b = parseInt(h.substr(4,2),16);
+    var luminance = (0.299*r + 0.587*g + 0.114*b);
+    return luminance > 140;
+  }
+
   function resetExpiredVisuals(){
     var o=document.getElementById("cdv"); o.className="val";
     var l=document.getElementById("cdlbl");
@@ -900,13 +930,40 @@
     else      el.style.display="none";
   }
 
+  // Direct content update — no animation (matches original behavior)
   function swapContent(el, newHTML){
     if(!el) return;
     if(el.innerHTML === newHTML) return;
     el.innerHTML = newHTML;
   }
 
-  // COUNTDOWN + POST-EXPIRATION RED BAR
+
+  function setBookAtFrontDesk(){
+    if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
+    cdMode="book"; cdTarget=null;
+    currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false;
+
+    var curEl=document.getElementById("curv");
+    var nxtEl=document.getElementById("nxtv");
+    var out=document.getElementById("cdv");
+    var lbl=document.getElementById("cdlbl");
+    var cdEl=document.getElementById("cd");
+
+    if(cdEl){ cdEl.className="sec urgent"; }
+    if(curEl){
+      curEl.style.color="#ffffff";
+      swapContent(curEl,"<span class='book-front-desk-text'>Book at Front desk</span>");
+    }
+    if(nxtEl){
+      nxtEl.style.color="rgba(255,255,255,0.85)";
+      swapContent(nxtEl,"No upcoming event");
+    }
+    if(lbl) lbl.textContent="Available";
+    if(out){ out.className="val"; out.textContent="OPEN"; }
+    setBarMode("red");
+  }
+
+  // ── COUNTDOWN ────────────────────────────────────────────
   function startCountdown(targetMs, mode){
     cdTarget=targetMs; cdMode=mode||"none";
     if(cdTimer){ clearTimeout(cdTimer); cdTimer=null; }
@@ -915,6 +972,10 @@
       var out=document.getElementById("cdv"), lbl=document.getElementById("cdlbl");
 
       if(!cdTarget){
+        if(cdMode==="book"){
+          setBookAtFrontDesk();
+          return;
+        }
         out.className="val"; out.textContent="--";
         lbl.textContent="Time Left";
         setBarMode(currentIsSkill?"skill":"normal");
@@ -934,19 +995,27 @@
         else if(totalMin>=60) out.textContent=Math.floor(totalMin/60)+"h "+(totalMin%60)+"m";
         else                  out.textContent=totalMin+"m";
 
+        // Apply size + color states based on remaining time (only during current event)
         var cdEl = document.getElementById("cd");
         if(cdEl && cdMode==="cur" && diff > 60000){
+          // Reset the urgent class (which only applies <60s); manage our own
           cdEl.classList.remove("urgent");
+          // Big font when minutes-only (sub 60 minutes)
           if(totalMin < 60) cdEl.classList.add("minutes-only");
           else              cdEl.classList.remove("minutes-only");
+          // Yellow at 10 minutes or less
           if(totalMin <= 10 && totalMin > 5) {
-            cdEl.classList.add("warn"); cdEl.classList.remove("danger");
+            cdEl.classList.add("warn");
+            cdEl.classList.remove("danger");
           } else if(totalMin <= 5) {
-            cdEl.classList.add("danger"); cdEl.classList.remove("warn");
+            cdEl.classList.add("danger");
+            cdEl.classList.remove("warn");
           } else {
-            cdEl.classList.remove("warn"); cdEl.classList.remove("danger");
+            cdEl.classList.remove("warn");
+            cdEl.classList.remove("danger");
           }
         } else if(cdEl && cdMode!=="cur"){
+          // Not the current event countdown — clear state classes
           cdEl.classList.remove("minutes-only");
           cdEl.classList.remove("warn");
           cdEl.classList.remove("danger");
@@ -962,36 +1031,31 @@
           cdElExpire.classList.remove("warn");
           cdElExpire.classList.remove("danger");
         }
-
         if(cdMode==="cur"){
-          // EXPIRED - go to persistent red bar if no next event
+          if(!nxtStart){
+            lastGood=null;
+            setBookAtFrontDesk();
+            try{ refresh(true); }catch(e){}
+            return;
+          }
           setBarMode("red");
           lbl.textContent="";
-          out.className="val expired-msg";
-
+          out.className="val expired-msg"; out.innerHTML="<span>TIME</span><span>EXPIRED</span>";
           var curEl=document.getElementById("curv");
-          if(nxtStart){
-            out.innerHTML="<span>TIME</span><span>EXPIRED</span>";
-            curEl.innerHTML=lastCurName?"Time expired — "+lastCurName:"Time expired";
-            setTimeout(function(){
-              setBarMode(currentIsSkill?"skill":"normal");
-              resetExpiredVisuals();
-              cdMode="next"; cdTarget=nxtStart; tick();
-            }, 30000);
-          } else {
-            // NO NEXT EVENT → persistent red bar
-            out.innerHTML = "<span style='font-size:26px'>BOOK AT FRONT DESK</span>";
-            curEl.innerHTML = "<strong style='color:#ffdddd;font-size:19px'>No upcoming events</strong>";
-            // stay in red mode forever (until refresh brings new data)
-            cdTarget = null;
-            cdMode = "none";
-          }
+          curEl.innerHTML=lastCurName?"Time expired — "+lastCurName:"Time expired";
+          setTimeout(function(){
+            setBarMode(currentIsSkill?"skill":"normal");
+            resetExpiredVisuals();
+            cdMode="next"; cdTarget=nxtStart; tick();
+          }, 30000);
+
         } else if(cdMode==="next"){
           cdTarget=null; cdMode="none";
           out.className="val"; out.textContent="--";
           lbl.textContent="Time Left";
           setBarMode("normal");
           try{ refresh(true); }catch(e){}
+
         } else {
           setBarMode("normal");
           lbl.textContent="Time Until";
@@ -1007,7 +1071,7 @@
     return "<div class='meta'>"+toLocalNY(d.start)+" – "+toLocalNY(d.end)+"</div>";
   }
 
-  // LEVEL INFO
+  // ── LEVEL COLOURS ────────────────────────────────────────────
   function getLevelInfo(title){
     var t=(title||""), tl=t.toLowerCase();
     var tn=tl.replace(/\s+/g,"").replace(/[–—]/g,"-");
@@ -1044,7 +1108,7 @@
     return s.toLowerCase().indexOf("cancel")>=0;
   }
 
-  // RENDER
+  // ── RENDER ────────────────────────────────────────────────
   function render(cur, nxt){
     var curEl=document.getElementById("curv"), nxtEl=document.getElementById("nxtv");
 
@@ -1055,17 +1119,18 @@
       currentLevelBg=lv.overlayBg;
       currentLevelBubble=lv.bubbleColor;
       currentIsSkill=!!lv.bubbleColor;
-      curEl.style.color="#ffffff";
+      if(curEl.style.color !== "rgb(255, 255, 255)") curEl.style.color="#ffffff";
       swapContent(curEl, cur.name+fmtTime(cur));
       setBarMode(currentIsSkill?"skill":"normal");
       startCountdown(cur.end.getTime(),"cur");
     } else {
       currentLevelLabel=""; currentLevelBg="#0c0c0c"; currentLevelBubble=null; currentIsSkill=false;
-      curEl.style.color="rgba(255,255,255,0.55)";
+      var dimColor = "rgba(255, 255, 255, 0.55)";
+      if(curEl.style.color !== dimColor) curEl.style.color=dimColor;
       swapContent(curEl, "No current event");
       setBarMode("normal");
       if(nxt) startCountdown(nxt.start.getTime(),"next");
-      else    startCountdown(null,"none");
+      else    setBookAtFrontDesk();
     }
 
     var nxtDimColor = "rgba(255, 255, 255, 0.6)";
@@ -1073,15 +1138,15 @@
       var nxtLv = getLevelInfo(nxt.name||"");
       var pill = nxtLv.bubbleColor ?
         "<span class='skill-pill' style='background:"+nxtLv.bubbleColor+";color:"+nxtLv.bubbleColor+"'></span>" : "";
-      nxtEl.style.color=nxtDimColor;
+      if(nxtEl.style.color !== nxtDimColor) nxtEl.style.color=nxtDimColor;
       swapContent(nxtEl, pill+nxt.name+fmtTime(nxt));
     } else {
-      nxtEl.style.color=nxtDimColor;
+      if(nxtEl.style.color !== nxtDimColor) nxtEl.style.color=nxtDimColor;
       swapContent(nxtEl, "No upcoming event");
     }
   }
 
-  // NORMALISE
+  // ── NORMALISE DATA ────────────────────────────────────────────
   function normalizeEvent(x){
     if(isCancelled(x)) return null;
     var nm=x.EventName||x.Name||x.Title||x.name||x.title||"Event";
@@ -1112,7 +1177,7 @@
     return {kind:"res",name:name,start:s,end:e,raw:x};
   }
 
-  // COMPUTE + RENDER
+  // ── COMPUTE & RENDER ────────────────────────────────────────
   function computeAndRender(){
     var ev=[],rs=[],i;
     for(i=0;i<cacheEv.length; i++){ var a=normalizeEvent(cacheEv[i]);  if(a) ev.push(a); }
@@ -1167,13 +1232,12 @@
     if(cur||nxt) lastGood={cur:cur,nxt:nxt};
 
     if(cur||nxt)    render(cur,nxt);
-    else if(lastGood) render(lastGood.cur,lastGood.nxt);
     else              render(null,null);
 
     dbg("cur="+(cur?cur.name:"none")+" nxt="+(nxt?nxt.name:"none"));
   }
 
-  // REFRESH
+  // ── REFRESH LOOP ────────────────────────────────────────
   function scheduleNext(){
     if(refreshTimer) clearTimeout(refreshTimer);
     refreshTimer=setTimeout(function(){ refresh(false); }, refreshDelayMs);
@@ -1186,6 +1250,11 @@
       if(!err&&data){
         showErrBadge(false);
         refreshDelayMs=BASE_REFRESH_MS;
+        if(SHOW_DEBUG){
+          var e0=pickArray(data.events)[0], r0=pickArray(data.reservations)[0];
+          if(e0) dbg("event keys: "+Object.keys(e0).join(","));
+          if(r0) dbg("resv keys: " +Object.keys(r0).join(","));
+        }
         cacheEv =pickArray(data.events);
         cacheRes=pickArray(data.reservations);
         computeAndRender();
@@ -1202,7 +1271,7 @@
     });
   }
 
-  // EVENT OVERLAY
+  // ── EVENT OVERLAY ────────────────────────────────────────
   var infoOverlay  =document.getElementById("infoOverlay");
   var overlayBodyEl=document.getElementById("overlayBody");
   var overlayBoxEl =document.getElementById("overlayBox");
@@ -1213,7 +1282,9 @@
     if(currentLevelLabel){
       overlayLvlEl.style.display="inline-block";
       overlayLvlEl.textContent=currentLevelLabel;
+      // Make the whole overlay box the skill color
       overlayBoxEl.style.background = currentLevelBg || "#0c0c0c";
+      // Detect if light skill color — use dark text; otherwise keep white
       var useDark = isLightColor(currentLevelBg || "#0c0c0c");
       var textColor = useDark ? "#000" : "#fff";
       overlayLvlEl.style.color = textColor;
@@ -1223,6 +1294,8 @@
       overlayBoxEl.style.border = useDark ? "1px solid rgba(0,0,0,0.2)" : "1px solid rgba(255,255,255,0.2)";
     } else {
       overlayLvlEl.style.display="none";
+      overlayLvlEl.textContent="";
+      overlayLvlEl.style.color="";
       overlayBoxEl.style.background = "";
       overlayBoxEl.style.color = "";
       overlayBodyEl.style.color = "";
@@ -1240,6 +1313,8 @@
     if(isInLastMinuteOfEvent()) return;
     if(bdayActive) return;
     if(!infoOverlay) return;
+    // Skip if this minute is a birthday-popup minute (every 15 min: :00, :15, :30, :45)
+    // — prevents overlap with birthday overlay
     var mNow = new Date().getMinutes();
     if(mNow % 15 === 0) return;
     var curEl=document.getElementById("curv");
@@ -1257,11 +1332,12 @@
     setTimeout(function(){ showOverlay(); setInterval(showOverlay,60000); }, ms + 2000);
   }
 
-  // BIRTHDAY OVERLAY
+  // ── BIRTHDAY OVERLAY ────────────────────────────────────────
   var bdayOverlay = document.getElementById("bdayOverlay");
   var bdayNamesEl = document.getElementById("bdayNames");
   var bdayActive  = false;
 
+  // Brand-aligned palette: green, navy-pink mix
   var BALLOON_COLORS = [
     "#3CC440","#7EE882","#1E2B6E","#c084fc",
     "#ff9de2","#fbbf24","#60a5fa","#a78bfa"
@@ -1348,28 +1424,102 @@
     }, msUntilNext);
   }
 
-  // TEST PANEL
+  // ── TEST PANEL ────────────────────────────────────────────
   var testActive = false;
   var testPanel = document.getElementById("testPanel");
 
   function fakeNow(skillName){
     testActive = true;
+    // Pause real refreshes while testing
     if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
     var now = new Date();
-    var fakeStart = new Date(now.getTime() - 30*60*1000);
-    var fakeEnd   = new Date(now.getTime() + 45*60*1000);
-    var fakeNxt = {kind:"event", name:"Open Play", start:new Date(fakeEnd.getTime() + 15*60*1000), end: new Date(fakeEnd.getTime() + 90*60*1000), raw:{}};
-    var fakeCur = {kind:"event", name: skillName, start: fakeStart, end: fakeEnd, raw:{}};
+    var fakeStart = new Date(now.getTime() - 30*60*1000); // started 30 min ago
+    var fakeEnd   = new Date(now.getTime() + 45*60*1000); // ends in 45 min
+    var fakeNxt = {
+      kind:"event",
+      name:"Open Play",
+      start:new Date(fakeEnd.getTime() + 15*60*1000),
+      end:  new Date(fakeEnd.getTime() + 90*60*1000),
+      raw:{}
+    };
+    var fakeCur = {
+      kind:"event",
+      name: skillName,
+      start: fakeStart,
+      end:   fakeEnd,
+      raw:{}
+    };
     render(fakeCur, fakeNxt);
   }
 
-  function fakeUrgent(){ /* ... */ }
-  function fakeWarn(){ /* ... */ }
-  function fakeDanger(){ /* ... */ }
+  function fakeUrgent(){
+    testActive = true;
+    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
+    var now = new Date();
+    var fakeCur = {
+      kind:"event",
+      name:"3.0–3.49 Intermediate",
+      start:new Date(now.getTime() - 60*60*1000),
+      end:  new Date(now.getTime() + 30*1000), // ends in 30 seconds — triggers red mode
+      raw:{}
+    };
+    var fakeNxt = {
+      kind:"event",
+      name:"Advanced Drills",
+      start:new Date(now.getTime() + 5*60*1000),
+      end:  new Date(now.getTime() + 65*60*1000),
+      raw:{}
+    };
+    render(fakeCur, fakeNxt);
+  }
+
+  // 10 minutes left — triggers yellow warn state
+  function fakeWarn(){
+    testActive = true;
+    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
+    var now = new Date();
+    var fakeCur = {
+      kind:"event",
+      name:"3.0–3.49 Intermediate",
+      start:new Date(now.getTime() - 60*60*1000),
+      end:  new Date(now.getTime() + 9.5*60*1000), // 9.5 min left = yellow
+      raw:{}
+    };
+    var fakeNxt = {
+      kind:"event",
+      name:"Advanced Drills",
+      start:new Date(now.getTime() + 15*60*1000),
+      end:  new Date(now.getTime() + 75*60*1000),
+      raw:{}
+    };
+    render(fakeCur, fakeNxt);
+  }
+
+  // 5 minutes left — triggers red glowing danger state
+  function fakeDanger(){
+    testActive = true;
+    if(refreshTimer){ clearTimeout(refreshTimer); refreshTimer = null; }
+    var now = new Date();
+    var fakeCur = {
+      kind:"event",
+      name:"3.0–3.49 Intermediate",
+      start:new Date(now.getTime() - 60*60*1000),
+      end:  new Date(now.getTime() + 4.5*60*1000), // 4.5 min left = red glow
+      raw:{}
+    };
+    var fakeNxt = {
+      kind:"event",
+      name:"Advanced Drills",
+      start:new Date(now.getTime() + 10*60*1000),
+      end:  new Date(now.getTime() + 70*60*1000),
+      raw:{}
+    };
+    render(fakeCur, fakeNxt);
+  }
 
   function exitTestMode(){
     testActive = false;
-    refresh();
+    refresh(); // immediately fetch real data
   }
 
   if(testPanel){
@@ -1401,7 +1551,7 @@
     }
   });
 
-  // INIT
+  // ── INIT ────────────────────────────────────────────
   document.getElementById("cno").textContent=String(COURT_NO);
   tickClock();
   refresh();
